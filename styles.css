@@ -1,0 +1,101 @@
+:root {
+  --primary: #2563eb; /* Azul eléctrico */
+  --primary-hover: #1d4ed8;
+  --secondary: #1e293b; /* Pizarra */
+  --success: #16a34a; /* Verde éxito */
+  --warning: #d97706; /* Ámbar */
+  --danger: #dc2626; /* Rojo alerta */
+  --background: #f8fafc;
+  --surface: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  font-family: 'Inter', sans-serif;
+  color: #334155;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9; 
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+/* Dialog defaults */
+dialog {
+  padding: 0;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  background: white;
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.kpi-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* View transition animations */
+.view-section {
+  display: none;
+  animation: fadeIn 0.3s ease-out;
+}
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Print Styles for Boleta */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #print-view, #print-view * {
+    visibility: visible;
+  }
+  
+  #print-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}

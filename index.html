@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agapea - Respaldo Financiero y Liquidaciones</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            base: '#1a1b26',    // Fondo principal pastel oscuro
+                            surface: '#24283b', // Tarjetas
+                            surface2: '#2f354d', // Hover
+                            border: '#414868',
+                            text: '#c0caf5',
+                            textMuted: '#9aa5ce'
+                        },
+                        pastel: {
+                            blue: '#7aa2f7',
+                            blueHover: '#6289df',
+                            green: '#9ece6a',
+                            greenBg: '#9ece6a22',
+                            red: '#f7768e',
+                            redBg: '#f7768e22',
+                            amber: '#e0af68',
+                            amberBg: '#e0af6822',
+                            purple: '#bb9af7',
+                            purpleBg: '#bb9af722'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Mobile menu specific transitions */
+        #mobile-sidebar-overlay {
+            transition: opacity 0.3s ease;
+        }
+        #app-sidebar {
+            transition: transform 0.3s ease;
+        }
+        .sidebar-open #app-sidebar {
+            transform: translateX(0);
+        }
+        
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1b26; }
+        ::-webkit-scrollbar-thumb { background: #414868; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7aa2f7; }
+        
+        /* Glass for dark mode */
+        .glass-panel {
+            background: rgba(36, 40, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #414868;
+        }
+    </style>
+</head>
+<body class="bg-dark-base text-dark-text font-sans antialiased h-screen flex flex-col md:flex-row overflow-hidden selection:bg-pastel-blue selection:text-dark-base">
+
+    <!-- PUBLIC LANDING PAGE (Default View) -->
+    <div id="public-view" class="w-full h-full flex flex-col overflow-y-auto z-50 absolute inset-0 transition-opacity duration-300">
+        
+        <!-- Public Header / Navbar -->
+        <header class="glass-panel text-dark-text p-4 md:px-8 flex justify-between items-center sticky top-0 z-50 shadow-md">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="app.switchPublicTab('home')">
+                <div class="bg-pastel-blue/20 text-pastel-blue p-2 rounded-lg">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-2xl tracking-tight leading-none text-white">AGAPEA</h1>
+                    <span class="text-[10px] text-pastel-blue font-bold uppercase tracking-widest">Respaldo Financiero</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex gap-8 items-center font-medium">
+                <button onclick="app.switchPublicTab('home')" class="text-dark-textMuted hover:text-pastel-blue transition-colors">Inicio</button>
+                <button onclick="app.switchPublicTab('catalog')" class="text-dark-textMuted hover:text-pastel-blue transition-colors">Catálogo de Remates</button>
+            </nav>
+
+            <button onclick="app.openLoginModal()" class="px-5 py-2.5 bg-pastel-blue hover:bg-pastel-blueHover text-dark-base text-sm font-semibold rounded-lg transition-colors shadow-lg flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4"></i> Acceso Admin
+            </button>
+        </header>
+
+        <!-- PUBLIC: HOME SECTION -->
+        <main id="public-home" class="flex-1 flex flex-col">
+            <!-- Hero Section -->
+            <section class="relative bg-dark-base overflow-hidden">
+                <!-- Soft Glows -->
+                <div class="absolute top-0 right-0 w-96 h-96 bg-pastel-purple/20 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-pastel-blue/20 rounded-full blur-[100px] pointer-events-none"></div>
+                
+                <div class="container mx-auto px-6 py-20 md:py-32 flex flex-col-reverse md:flex-row items-center gap-12 relative z-10">
+                    <div class="md:w-1/2 space-y-6 text-center md:text-left mt-10 md:mt-0">
+                        <span class="inline-block py-1 px-3 rounded-full bg-pastel-blue/10 text-pastel-blue text-sm font-bold tracking-wider mb-2 border border-pastel-blue/30">SOLUCIONES INMEDIATAS</span>
+                        <h2 class="text-4xl md:text-6xl font-extrabold leading-tight text-white">
+                            Tu respaldo financiero <span class="text-pastel-blue">confiable</span> y <span class="text-pastel-purple">seguro</span>.
+                        </h2>
+                        <p class="text-lg text-dark-textMuted max-w-lg mx-auto md:mx-0">
+                            En Agapea ofrecemos liquidez inmediata a través de garantías prendarias con la tasación más justa del mercado y total confidencialidad.
+                        </p>
+                        <div class="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                            <button onclick="document.getElementById('services').scrollIntoView({behavior: 'smooth'})" class="px-8 py-3.5 bg-pastel-blue hover:bg-pastel-blueHover text-dark-base font-bold rounded-xl transition-all shadow-lg shadow-pastel-blue/20">
+                                Conocer Servicios
+                            </button>
+                            <button onclick="app.switchPublicTab('catalog')" class="px-8 py-3.5 bg-dark-surface border border-dark-border hover:bg-dark-surface2 text-white font-bold rounded-xl transition-all shadow-sm">
+                                Ver Catálogo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 relative w-full px-4 md:px-0">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Negocio" class="rounded-2xl shadow-2xl relative z-10 border border-dark-border w-full object-cover aspect-video md:aspect-auto">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section id="services" class="py-20 bg-dark-surface">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl font-extrabold text-white">Nuestros Servicios Corporativos</h2>
+                        <p class="text-dark-textMuted mt-4 max-w-2xl mx-auto">Diseñados para brindarte tranquilidad y soluciones cuando más lo necesitas, sin trámites burocráticos engorrosos.</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-10">
+                        <div class="p-8 rounded-2xl bg-dark-base border border-dark-border hover:border-pastel-blue/50 transition-colors text-center md:text-left">
+                            <div class="w-14 h-14 bg-pastel-blue/10 text-pastel-blue rounded-2xl flex items-center justify-center mb-6 mx-auto md:mx-0">
+                                <i data-lucide="banknote" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Liquidez Inmediata</h3>
+                            <p class="text-dark-textMuted">Obtén efectivo en el acto dejando tu artículo en garantía. Evaluamos y desembolsamos en menos de 15 minutos.</p>
+                        </div>
+                        <div class="p-8 rounded-2xl bg-dark-base border border-dark-border hover:border-pastel-green/50 transition-colors text-center md:text-left">
+                            <div class="w-14 h-14 bg-pastel-green/10 text-pastel-green rounded-2xl flex items-center justify-center mb-6 mx-auto md:mx-0">
+                                <i data-lucide="scale" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Tasación Justa</h3>
+                            <p class="text-dark-textMuted">Nuestros expertos valoran tus herramientas, maquinaria o tecnología ofreciéndote el monto más alto del mercado local.</p>
+                        </div>
+                        <div class="p-8 rounded-2xl bg-dark-base border border-dark-border hover:border-pastel-amber/50 transition-colors text-center md:text-left">
+                            <div class="w-14 h-14 bg-pastel-amber/10 text-pastel-amber rounded-2xl flex items-center justify-center mb-6 mx-auto md:mx-0">
+                                <i data-lucide="lock" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Custodia Segura</h3>
+                            <p class="text-dark-textMuted">Tus bienes son resguardados en bóvedas e instalaciones con seguridad 24/7 hasta que recuperes tu prenda.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How it works -->
+            <section class="py-20 bg-dark-base text-white">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl font-extrabold text-white">¿Cómo funciona Agapea?</h2>
+                        <p class="text-dark-textMuted mt-4 max-w-2xl mx-auto">Proceso transparente, rápido y sin revisión de historial crediticio.</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8 text-center relative">
+                        <!-- Connecting Line -->
+                        <div class="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-dark-border z-0"></div>
+                        
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-dark-surface rounded-full border-4 border-dark-border flex items-center justify-center mb-6 shadow-xl">
+                                <span class="text-3xl font-black text-pastel-blue">1</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">Trae tu artículo</h4>
+                            <p class="text-dark-textMuted px-4 text-sm">Herramientas, maquinaria, o electrónicos en buen estado de funcionamiento.</p>
+                        </div>
+                        
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-dark-surface rounded-full border-4 border-dark-border flex items-center justify-center mb-6 shadow-xl">
+                                <span class="text-3xl font-black text-pastel-blue">2</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">Recibe tu evaluación</h4>
+                            <p class="text-dark-textMuted px-4 text-sm">Tasamos en el momento y te ofrecemos el crédito con las mejores condiciones.</p>
+                        </div>
+                        
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-pastel-blue rounded-full border-4 border-dark-border flex items-center justify-center mb-6 shadow-xl shadow-pastel-blue/20">
+                                <span class="text-3xl font-black text-dark-base">3</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">Lleva tu efectivo</h4>
+                            <p class="text-dark-textMuted px-4 text-sm">Firma el contrato y obtén tu dinero en minutos. Recupera tu artículo al pagar el plazo.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- PUBLIC: CATALOG SECTION -->
+        <main id="public-catalog-page" class="hidden flex-1 flex flex-col bg-dark-base">
+            <div class="bg-dark-surface py-16 px-6 text-center border-b border-dark-border">
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-white">Catálogo de Remates</h2>
+                <p class="text-lg text-dark-textMuted max-w-2xl mx-auto">Oportunidades únicas de adquirir maquinaria y herramientas de liquidación a una fracción de su precio original.</p>
+            </div>
+            
+            <section class="py-12 container mx-auto px-6 flex-1">
+                <!-- Horizontal scroll on mobile -->
+                <div class="flex gap-2 overflow-x-auto pb-4 mb-8 w-full snap-x">
+                    <button class="snap-start px-5 py-2.5 bg-pastel-blue text-dark-base rounded-full text-sm font-semibold whitespace-nowrap shadow-md">Todos los Artículos</button>
+                    <button class="snap-start px-5 py-2.5 bg-dark-surface border border-dark-border text-dark-text rounded-full text-sm font-semibold hover:bg-dark-surface2 whitespace-nowrap">Herramientas</button>
+                    <button class="snap-start px-5 py-2.5 bg-dark-surface border border-dark-border text-dark-text rounded-full text-sm font-semibold hover:bg-dark-surface2 whitespace-nowrap">Electrónica</button>
+                </div>
+
+                <div id="public-catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Public Catalog injected here -->
+                </div>
+            </section>
+        </main>
+        
+        <!-- Public Footer -->
+        <footer class="bg-dark-surface border-t border-dark-border py-8 text-center text-dark-textMuted text-sm mt-auto">
+            <div class="flex justify-center items-center gap-2 mb-4">
+                <i data-lucide="shield-check" class="w-5 h-5 text-pastel-blue"></i>
+                <span class="font-bold text-white tracking-wide">AGAPEA</span>
+            </div>
+            <p>&copy; 2026 Agapea - Casa de Empeños. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- Modal: Login -->
+    <dialog id="modal-login" class="w-[90%] max-w-sm bg-dark-surface rounded-2xl shadow-2xl p-0 backdrop:bg-dark-base/80 border border-dark-border">
+        <form method="dialog" id="form-login" class="flex flex-col">
+            <div class="p-8 text-center border-b border-dark-border">
+                <div class="w-16 h-16 bg-pastel-blue/10 text-pastel-blue rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white mb-2 tracking-tight">Portal Agapea</h3>
+                <p class="text-sm text-dark-textMuted">Ingreso administrativo seguro</p>
+            </div>
+            
+            <div class="p-8 space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-bold text-dark-text mb-1">Usuario</label>
+                    <input type="text" id="login-user" value="admin" required class="w-full border border-dark-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pastel-blue outline-none transition-shadow bg-dark-base text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-dark-text mb-1">Contraseña</label>
+                    <input type="password" id="login-pass" value="admin123" required class="w-full border border-dark-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-pastel-blue outline-none transition-shadow bg-dark-base text-white">
+                </div>
+                <p id="login-error" class="text-pastel-red text-sm text-center hidden font-bold bg-pastel-redBg p-2 rounded-lg border border-pastel-red/30">Credenciales incorrectas</p>
+            </div>
+
+            <div class="p-6 pt-0 flex flex-col gap-3 rounded-b-2xl">
+                <button type="submit" class="w-full py-3.5 bg-pastel-blue hover:bg-pastel-blueHover text-dark-base font-bold rounded-xl transition-all shadow-lg shadow-pastel-blue/20">Ingresar al Sistema</button>
+                <button type="button" onclick="document.getElementById('modal-login').close()" class="w-full py-3.5 text-dark-textMuted font-semibold hover:bg-dark-surface2 hover:text-white rounded-xl transition-colors">Volver</button>
+            </div>
+        </form>
+    </dialog>
+
+
+    <!-- PRIVATE APP VIEW (Hidden by default) -->
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-dark-base/80 z-40 hidden opacity-0" onclick="app.toggleMobileSidebar()"></div>
+
+    <aside id="app-sidebar" class="w-64 bg-dark-surface border-r border-dark-border text-white flex-col shrink-0 hidden md:flex fixed md:relative h-full z-50 transform -translate-x-full md:translate-x-0">
+        <div class="p-6 flex items-center justify-between border-b border-dark-border">
+            <div class="flex items-center gap-3">
+                <div class="bg-pastel-blue/20 p-2 rounded-lg">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-pastel-blue"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-tight leading-none text-white">AGAPEA</h1>
+                    <p class="text-[10px] text-pastel-purple font-bold uppercase tracking-wider">Admin Panel</p>
+                </div>
+            </div>
+            <button class="md:hidden text-dark-textMuted hover:text-white" onclick="app.toggleMobileSidebar()">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="app.switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-pastel-blue/20 text-pastel-blue font-semibold transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </button>
+            <button onclick="app.switchTab('catalog-admin')" class="nav-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark-textMuted hover:bg-dark-surface2 hover:text-white transition-colors font-medium">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i> Catálogo
+            </button>
+            <button onclick="app.switchTab('balance')" class="nav-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark-textMuted hover:bg-dark-surface2 hover:text-white transition-colors font-medium">
+                <i data-lucide="wallet" class="w-5 h-5"></i> Arqueo
+            </button>
+        </nav>
+        
+        <div class="p-4 border-t border-dark-border">
+            <button onclick="app.logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-pastel-red hover:bg-pastel-redBg transition-colors font-semibold">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <main id="app-main" class="flex-1 overflow-y-auto relative flex-col hidden h-full w-full bg-dark-base">
+        <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-8 shrink-0 z-10 sticky top-0">
+            <div class="flex items-center gap-3">
+                <!-- Mobile Menu Toggle -->
+                <button class="md:hidden p-2 text-dark-textMuted hover:text-white rounded-lg" onclick="app.toggleMobileSidebar()">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <h2 id="page-title" class="text-lg md:text-xl font-bold text-white">Dashboard y Préstamos</h2>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="app.openNewLoanModal()" class="bg-pastel-blue hover:bg-pastel-blueHover text-dark-base px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-pastel-blue/10 transition-all active:scale-95 text-sm md:text-base">
+                    <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:inline">Nuevo Préstamo</span><span class="sm:hidden">Nuevo</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 flex-1">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section active space-y-6">
+                <!-- Time Filter -->
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-dark-surface p-5 rounded-2xl border border-dark-border shadow-sm gap-4">
+                    <h3 class="font-bold text-white flex items-center gap-2 text-lg">
+                        <i data-lucide="bar-chart-2" class="w-6 h-6 text-pastel-blue"></i> Rendimiento de Cartera
+                    </h3>
+                    
+                    <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                        <select id="time-filter" class="w-full sm:w-auto border border-dark-border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-pastel-blue outline-none font-semibold bg-dark-base text-white cursor-pointer">
+                            <option value="all">Todo el tiempo</option>
+                            <option value="year">Último Año</option>
+                            <option value="month" selected>Último Mes</option>
+                            <option value="week">Última Semana</option>
+                            <option value="custom">Rango Personalizado...</option>
+                        </select>
+                        
+                        <!-- Custom Date Range -->
+                        <div id="custom-date-container" class="hidden flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-dark-base p-1.5 rounded-xl border border-dark-border w-full sm:w-auto">
+                            <input type="date" id="date-from" class="text-sm border-none bg-transparent outline-none font-medium text-white cursor-pointer px-2 py-1">
+                            <span class="text-dark-textMuted font-bold hidden sm:inline">-</span>
+                            <input type="date" id="date-to" class="text-sm border-none bg-transparent outline-none font-medium text-white cursor-pointer px-2 py-1">
+                            <button onclick="app.applyCustomDates()" class="bg-pastel-blue text-dark-base px-3 py-2 sm:py-1.5 rounded-lg text-xs font-bold hover:bg-pastel-blueHover transition-colors mt-2 sm:mt-0">Aplicar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm kpi-card">
+                        <p class="text-xs font-bold text-dark-textMuted mb-2 uppercase tracking-wider">Capital Colocado</p>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-black text-white" id="kpi-capital">0 Bs</h3>
+                            <div class="p-3 bg-pastel-blue/10 text-pastel-blue rounded-2xl"><i data-lucide="coins" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm kpi-card">
+                        <p class="text-xs font-bold text-dark-textMuted mb-2 uppercase tracking-wider">Intereses Generados</p>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-black text-pastel-green" id="kpi-interest">0 Bs</h3>
+                            <div class="p-3 bg-pastel-green/10 text-pastel-green rounded-2xl"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm kpi-card">
+                        <p class="text-xs font-bold text-dark-textMuted mb-2 uppercase tracking-wider">Préstamos Activos</p>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-black text-white" id="kpi-active-loans">0</h3>
+                            <div class="p-3 bg-pastel-amber/10 text-pastel-amber rounded-2xl"><i data-lucide="files" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm kpi-card">
+                        <p class="text-xs font-bold text-dark-textMuted mb-2 uppercase tracking-wider">Valor Liquidación</p>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-black text-white" id="kpi-liquidation">0 Bs</h3>
+                            <div class="p-3 bg-pastel-purple/10 text-pastel-purple rounded-2xl"><i data-lucide="gavel" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm lg:col-span-2 flex flex-col min-h-[350px]">
+                        <h4 class="font-bold text-white mb-4 text-lg">Distribución: Capital vs Interés</h4>
+                        <div class="flex-1 relative w-full">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-dark-surface rounded-2xl p-6 border border-dark-border shadow-sm flex flex-col min-h-[350px]">
+                        <h4 class="font-bold text-white mb-4 text-lg">Estado Operativo</h4>
+                        <div class="flex-1 relative w-full flex justify-center items-center">
+                            <canvas id="doughnutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Area -->
+                <div class="bg-dark-surface rounded-2xl border border-dark-border shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-dark-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-dark-base/50">
+                        <h4 class="font-bold text-white text-lg">Préstamos Activos Recientes</h4>
+                        <div class="relative w-full sm:w-auto">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-dark-textMuted"></i>
+                            <input type="text" placeholder="Buscar cliente..." class="w-full pl-9 pr-4 py-2 border border-dark-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue bg-dark-base text-white font-medium">
+                        </div>
+                    </div>
+                    <!-- Contenedor responsive con scroll horizontal en móvil -->
+                    <div class="w-full overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap min-w-[800px]">
+                            <thead class="bg-dark-base/80 text-dark-textMuted border-b border-dark-border">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Código</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Cliente</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Garantía</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Monto</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Vencimiento</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Estado</th>
+                                    <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loans-table-body" class="divide-y divide-dark-border/50">
+                                <!-- Dynamic rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CATALOG ADMIN -->
+            <section id="view-catalog-admin" class="view-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-dark-surface p-5 rounded-2xl border border-dark-border shadow-sm">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i data-lucide="package" class="w-6 h-6 text-pastel-blue"></i> Gestión de Inventario
+                    </h3>
+                    <button onclick="app.openNewCatalogItemModal()" class="w-full sm:w-auto px-4 py-2.5 bg-pastel-blue text-dark-base rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-pastel-blueHover transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Añadir Artículo Directo
+                    </button>
+                </div>
+                <div id="catalog-admin-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Dynamic catalog items injected here -->
+                </div>
+            </section>
+
+            <!-- VIEW: BALANCE -->
+            <section id="view-balance" class="view-section">
+                <div class="max-w-4xl mx-auto mt-4">
+                    <div class="bg-dark-surface rounded-2xl shadow-sm border border-dark-border overflow-hidden mb-8">
+                        <div class="p-6 border-b border-dark-border bg-dark-base/50 flex items-center gap-3">
+                            <div class="p-2.5 bg-pastel-blue/10 text-pastel-blue rounded-xl"><i data-lucide="calculator" class="w-6 h-6"></i></div>
+                            <h3 class="text-xl font-black text-white tracking-tight">Arqueo General Agapea</h3>
+                        </div>
+                        <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-bold text-dark-textMuted uppercase tracking-wider mb-4 border-b border-dark-border pb-2">Flujo de Préstamos</h4>
+                                <div class="flex justify-between items-end border-b border-dark-base pb-3">
+                                    <span class="text-dark-text font-semibold">Intereses Cobrados (Histórico)</span>
+                                    <span class="font-black text-pastel-green text-xl">1,250 Bs</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-dark-base pb-3">
+                                    <span class="text-dark-text font-semibold">Intereses Pendientes (Activos)</span>
+                                    <span class="font-black text-pastel-amber text-xl" id="balance-pending-interest">0 Bs</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-bold text-dark-textMuted uppercase tracking-wider mb-4 border-b border-dark-border pb-2">Flujo de Liquidaciones</h4>
+                                <div class="flex justify-between items-end border-b border-dark-base pb-3">
+                                    <span class="text-dark-text font-semibold">Valor Inventario Actual</span>
+                                    <span class="font-black text-pastel-blue text-xl" id="balance-catalog-value">0 Bs</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-dark-base pb-3">
+                                    <span class="text-dark-text font-semibold">Ventas Realizadas</span>
+                                    <span class="font-black text-white text-xl">0 Bs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal: Nuevo Préstamo -->
+    <dialog id="modal-new-loan" class="w-[95%] max-w-lg bg-dark-surface rounded-2xl shadow-2xl p-0 backdrop:bg-dark-base/80 border border-dark-border">
+        <form method="dialog" id="form-new-loan" class="flex flex-col h-full max-h-[90vh]">
+            <div class="p-5 md:p-6 border-b border-dark-border flex justify-between items-center bg-dark-base/50 rounded-t-2xl">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="file-plus" class="w-5 h-5 text-pastel-blue"></i> Registrar Préstamo
+                </h3>
+                <button type="button" onclick="app.closeNewLoanModal()" class="text-dark-textMuted hover:text-white bg-dark-base rounded-full p-1.5 border border-dark-border transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 md:p-6 space-y-4 overflow-y-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-semibold text-dark-text mb-1">Prestatario</label>
+                        <input type="text" id="nl-name" required class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none bg-dark-base text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-dark-text mb-1">CI / DNI</label>
+                        <input type="text" id="nl-dni" required class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none bg-dark-base text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-dark-text mb-1">Teléfono</label>
+                        <input type="tel" id="nl-phone" required placeholder="Ej: 71234567" class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none bg-dark-base text-white">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-semibold text-dark-text mb-1">Descripción de la Prenda</label>
+                        <textarea id="nl-item" required rows="2" class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none resize-none bg-dark-base text-white"></textarea>
+                    </div>
+                    
+                    <div class="sm:col-span-2 border-t border-dark-border mt-2 pt-4">
+                        <h4 class="text-sm font-bold text-white">Condiciones del Préstamo</h4>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-dark-text mb-1">Capital (Bs)</label>
+                        <input type="number" id="nl-amount" required min="10" step="10" class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none bg-dark-base text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-dark-text mb-1">Período</label>
+                        <select id="nl-period" class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-blue outline-none bg-dark-base text-white cursor-pointer">
+                            <option value="15">15 Días (10%)</option>
+                            <option value="30">30 Días (20%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-pastel-blue/10 rounded-xl p-5 mt-4 border border-pastel-blue/20 flex justify-between items-center shadow-inner">
+                    <div>
+                        <p class="text-sm font-semibold text-pastel-blue">Interés a Cobrar</p>
+                        <p class="text-xs font-medium text-pastel-blue/80 mt-1">Vence: <span id="nl-calc-date">-</span></p>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-black text-pastel-blue tracking-tight" id="nl-calc-interest">0 Bs</div>
+                </div>
+            </div>
+
+            <div class="p-5 md:p-6 border-t border-dark-border bg-dark-base/50 flex flex-col sm:flex-row justify-end gap-3 rounded-b-2xl shrink-0">
+                <button type="button" onclick="app.closeNewLoanModal()" class="w-full sm:w-auto px-5 py-2.5 text-dark-textMuted font-medium hover:text-white hover:bg-dark-surface rounded-xl transition-colors">Cancelar</button>
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-pastel-blue text-dark-base font-bold hover:bg-pastel-blueHover rounded-xl shadow-md shadow-pastel-blue/20 transition-all active:scale-95">Guardar Préstamo</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal: Nuevo Artículo Catálogo -->
+    <dialog id="modal-new-catalog" class="w-[95%] max-w-lg bg-dark-surface rounded-2xl shadow-2xl p-0 backdrop:bg-dark-base/80 border border-dark-border">
+        <form method="dialog" id="form-new-catalog" class="flex flex-col h-full max-h-[90vh]">
+            <div class="p-5 md:p-6 border-b border-dark-border flex justify-between items-center bg-dark-base/50 rounded-t-2xl">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="package-plus" class="w-5 h-5 text-pastel-green"></i> Añadir al Catálogo
+                </h3>
+                <button type="button" onclick="app.closeNewCatalogItemModal()" class="text-dark-textMuted hover:text-white bg-dark-base rounded-full p-1.5 border border-dark-border transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 md:p-6 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-sm font-semibold text-dark-text mb-1">Título del Artículo</label>
+                    <input type="text" id="nc-title" required class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-green outline-none bg-dark-base text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-dark-text mb-1">Condición</label>
+                    <select id="nc-condition" required class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-green outline-none bg-dark-base text-white cursor-pointer">
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Como nuevo">Como nuevo</option>
+                        <option value="Excelente estado" selected>Excelente estado</option>
+                        <option value="Usado">Usado</option>
+                        <option value="Para reparar">Para reparar</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-dark-text mb-1">Precio de Venta (Bs)</label>
+                    <input type="number" id="nc-price" required min="1" step="0.5" class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-green outline-none bg-dark-base text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-dark-text mb-1">URL de Imagen (Opcional)</label>
+                    <input type="url" id="nc-image" placeholder="https://..." class="w-full border border-dark-border rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-pastel-green outline-none bg-dark-base text-white">
+                </div>
+            </div>
+
+            <div class="p-5 md:p-6 border-t border-dark-border bg-dark-base/50 flex flex-col sm:flex-row justify-end gap-3 rounded-b-2xl shrink-0">
+                <button type="button" onclick="app.closeNewCatalogItemModal()" class="w-full sm:w-auto px-5 py-2.5 text-dark-textMuted font-medium hover:text-white hover:bg-dark-surface rounded-xl transition-colors">Cancelar</button>
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-pastel-green text-dark-base font-bold hover:bg-pastel-green/80 rounded-xl shadow-md shadow-pastel-green/20 transition-all active:scale-95">Publicar Artículo</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Print View: (Ignored by dark theme, enforced white background) -->
+    <div id="print-view" class="hidden print:block bg-white p-8 max-w-3xl mx-auto text-black font-sans">
+        <!-- El contenido de impresión se mantiene idéntico, fondo blanco y letras negras para la impresora -->
+        <div class="border-b-2 border-slate-800 pb-4 mb-6 text-center">
+            <h1 class="text-3xl font-black uppercase tracking-widest mb-1 text-black">AGAPEA</h1>
+            <h2 class="text-lg font-semibold text-slate-600 mt-1">Recibo y Contrato de Garantía Prendaria</h2>
+            <p class="text-sm mt-2 font-mono font-bold" id="print-contract-id">Contrato Nro: XXXX</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 mb-6">
+            <div>
+                <h3 class="font-bold border-b border-slate-300 pb-1 mb-2 text-black">Datos del Cliente</h3>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">Nombre:</span> <span id="print-client"></span></p>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">CI/DNI:</span> <span id="print-dni"></span></p>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">Teléfono:</span> <span id="print-phone"></span></p>
+            </div>
+            <div>
+                <h3 class="font-bold border-b border-slate-300 pb-1 mb-2 text-black">Fechas</h3>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">Fecha Emisión:</span> <span id="print-date"></span></p>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">Fecha Vencimiento:</span> <span id="print-due"></span></p>
+                <p class="text-sm mb-1 text-black"><span class="font-semibold">Plazo:</span> <span id="print-period"></span> Días</p>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-bold border-b border-slate-300 pb-1 mb-2 text-black">Descripción de la Garantía</h3>
+            <p class="text-sm p-3 bg-slate-50 border border-slate-200 rounded text-black" id="print-item"></p>
+        </div>
+
+        <div class="mb-8">
+            <table class="w-full border-collapse border border-slate-800 text-sm text-black">
+                <thead>
+                    <tr class="bg-slate-100">
+                        <th class="border border-slate-800 p-2 text-left">Concepto</th>
+                        <th class="border border-slate-800 p-2 text-right">Monto (Bs)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-slate-800 p-2">Capital Prestado</td>
+                        <td class="border border-slate-800 p-2 text-right font-semibold" id="print-capital"></td>
+                    </tr>
+                    <tr>
+                        <td class="border border-slate-800 p-2">Interés Pactado (10%)</td>
+                        <td class="border border-slate-800 p-2 text-right" id="print-interest"></td>
+                    </tr>
+                    <tr class="bg-slate-100 font-bold">
+                        <td class="border border-slate-800 p-2 text-right">TOTAL A PAGAR</td>
+                        <td class="border border-slate-800 p-2 text-right text-lg" id="print-total"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-xs text-justify space-y-2 mb-16 text-black">
+            <h4 class="font-bold">CLÁUSULA LEGAL Y CONDICIONES:</h4>
+            <p>1. El PRESTATARIO declara ser legítimo propietario del bien dejado en calidad de garantía prendaria y asume toda responsabilidad civil o penal sobre su procedencia.</p>
+            <p>2. El PRESTATARIO cede de manera voluntaria, expresa e irrevocable el derecho propietario del bien descrito a favor de Agapea si al cumplirse la FECHA DE VENCIMIENTO no se hubiese cancelado la totalidad del Capital más el Interés pactado.</p>
+            <p>3. En caso de mora, Agapea queda facultada para disponer del bien prendario de forma inmediata (venta directa o remate) sin necesidad de requerimiento judicial ni previo aviso.</p>
+        </div>
+
+        <div class="flex justify-between mt-16 px-8 text-black">
+            <div class="text-center border-t border-slate-800 pt-2 w-48">
+                <p class="font-bold text-sm">Firma Cliente</p>
+                <p class="text-xs" id="print-sign-client">CI:</p>
+            </div>
+            <div class="text-center border-t border-slate-800 pt-2 w-48">
+                <p class="font-bold text-sm">Agapea Autorizado</p>
+                <p class="text-xs">Sello / Firma</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Logic -->
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
